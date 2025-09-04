@@ -70,17 +70,29 @@
       const file = e.target.files[0];
       if (!file) return;
 
+      // Vis loading besked
+      document.getElementById("summaryBox").innerText = "Behandler PDF...";
+
       const formData = new FormData();
       formData.append("file", file);
 
-      const res = await fetch(`${SUPABASE_URL}/pdfsummary`, {
-        method: "POST",
-        body: formData
-      });
+      try {
+        const res = await fetch(`${SUPABASE_URL}/pdfsummary`, {
+          method: "POST",
+          body: formData
+        });
 
-      const data = await res.json();
-      currentSummary = data.summary || "";
-      document.getElementById("summaryBox").innerText = currentSummary;
+        const data = await res.json();
+        
+        if (data.success) {
+          currentSummary = data.summary || "";
+          document.getElementById("summaryBox").innerText = currentSummary;
+        } else {
+          document.getElementById("summaryBox").innerText = `Fejl: ${data.error}`;
+        }
+      } catch (error) {
+        document.getElementById("summaryBox").innerText = `Fejl ved upload: ${error.message}`;
+      }
     };
 
     // Lav forslag → Supabase forslag
@@ -90,16 +102,29 @@
         return;
       }
 
-      const profile = document.getElementById("profileSelect").value;
-      const res = await fetch(`${SUPABASE_URL}/forslag`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ text: currentSummary, profile })
-      });
+      // Vis loading besked
+      document.getElementById("forslagBox").innerText = "Genererer forslag...";
 
-      const data = await res.json();
-      currentSuggestion = data.suggestion || "Intet forslag modtaget";
-      document.getElementById("forslagBox").innerText = currentSuggestion;
+      const profile = document.getElementById("profileSelect").value;
+      
+      try {
+        const res = await fetch(`${SUPABASE_URL}/forslag`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ text: currentSummary, profile })
+        });
+
+        const data = await res.json();
+        
+        if (data.success) {
+          currentSuggestion = data.suggestion || "Intet forslag modtaget";
+          document.getElementById("forslagBox").innerText = currentSuggestion;
+        } else {
+          document.getElementById("forslagBox").innerText = `Fejl: ${data.error}`;
+        }
+      } catch (error) {
+        document.getElementById("forslagBox").innerText = `Fejl ved generering: ${error.message}`;
+      }
     }
 
     // Gem aktivitet (max 3)
