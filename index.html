@@ -5,133 +5,267 @@
   <title>Læringsassistent</title>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
   <style>
-    body { font-family: sans-serif; margin: 0; background: #f9fafb; color: #111; }
-    header { background: #007aff; color: white; padding: 15px; text-align: center; }
-    main { display: flex; }
-    .left, .right { flex: 1; padding: 20px; }
-    h2 { margin-top: 0; }
-    button { background: #007aff; color: white; border: none; padding: 10px 16px; border-radius: 6px; cursor: pointer; margin-top: 5px; }
-    button:hover { background: #005bb5; }
-    select, textarea { padding: 8px; border-radius: 6px; border: 1px solid #ddd; margin-bottom: 1rem; width: 100%; }
-    .card { background: white; border-radius: 10px; padding: 20px; margin-bottom: 20px; box-shadow: 0 2px 5px rgba(0,0,0,0.05); }
-    pre { white-space: pre-wrap; background: #f1f1f1; padding: 10px; border-radius: 6px; }
-    .activity { background: #fff; border: 1px solid #ddd; border-radius: 6px; padding: 10px; margin-bottom: 10px; }
+    body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; margin: 0; background: #f8fafc; color: #1e293b; }
+    header { background: linear-gradient(135deg, #3b82f6, #1d4ed8); color: white; padding: 20px; text-align: center; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1); }
+    header h1 { margin: 0; font-size: 2rem; font-weight: 700; }
+    header p { margin: 8px 0 0 0; opacity: 0.9; font-size: 1.1rem; }
+    main { display: flex; gap: 24px; padding: 24px; max-width: 1400px; margin: 0 auto; }
+    .left, .right { flex: 1; }
+    h2 { margin-top: 0; color: #1e293b; font-size: 1.5rem; font-weight: 600; }
+    button { 
+      background: #3b82f6; 
+      color: white; 
+      border: none; 
+      padding: 12px 20px; 
+      border-radius: 8px; 
+      cursor: pointer; 
+      margin: 8px 0;
+      font-size: 14px;
+      font-weight: 500;
+      transition: all 0.2s;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+    }
+    button:hover { background: #2563eb; transform: translateY(-1px); }
+    button:disabled { background: #94a3b8; cursor: not-allowed; transform: none; }
+    select, textarea { 
+      padding: 12px; 
+      border-radius: 8px; 
+      border: 2px solid #e2e8f0; 
+      margin-bottom: 16px; 
+      width: 100%; 
+      box-sizing: border-box;
+      font-family: inherit;
+      font-size: 14px;
+      transition: border-color 0.2s;
+    }
+    select:focus, textarea:focus { outline: none; border-color: #3b82f6; }
+    .card { 
+      background: white; 
+      border-radius: 12px; 
+      padding: 24px; 
+      margin-bottom: 24px; 
+      box-shadow: 0 1px 3px 0 rgba(0,0,0,0.1), 0 1px 2px 0 rgba(0,0,0,0.06);
+      border: 1px solid #e2e8f0;
+    }
+    pre { 
+      white-space: pre-wrap; 
+      background: #f1f5f9; 
+      padding: 20px; 
+      border-radius: 8px; 
+      border: 1px solid #e2e8f0;
+      font-size: 14px;
+      line-height: 1.6;
+      max-height: 500px;
+      overflow-y: auto;
+      font-family: 'SF Mono', Monaco, 'Cascadia Code', 'Roboto Mono', Consolas, 'Courier New', monospace;
+    }
+    .activity { 
+      background: #fff; 
+      border: 2px solid #e2e8f0; 
+      border-radius: 12px; 
+      padding: 20px; 
+      margin-bottom: 16px;
+      transition: border-color 0.2s;
+    }
+    .activity:hover { border-color: #3b82f6; }
+    .activity h4 { margin: 0 0 12px 0; color: #3b82f6; font-size: 1.1rem; }
+    .loading { color: #64748b; font-style: italic; display: flex; align-items: center; gap: 8px; }
+    .error { color: #dc2626; background: #fef2f2; padding: 16px; border-radius: 8px; border: 1px solid #fecaca; }
+    .success { color: #059669; background: #f0fdf4; padding: 16px; border-radius: 8px; border: 1px solid #bbf7d0; }
+    .file-input-wrapper {
+      position: relative;
+      display: inline-block;
+      cursor: pointer;
+      background: #3b82f6;
+      color: white;
+      padding: 12px 20px;
+      border-radius: 8px;
+      transition: all 0.2s;
+      font-weight: 500;
+    }
+    .file-input-wrapper:hover { background: #2563eb; transform: translateY(-1px); }
+    .file-input-wrapper input[type=file] {
+      position: absolute;
+      left: -9999px;
+    }
+    .empty-state {
+      text-align: center;
+      color: #64748b;
+      font-style: italic;
+      padding: 40px 20px;
+    }
+    @media (max-width: 768px) {
+      main { flex-direction: column; padding: 16px; }
+      header { padding: 16px; }
+      header h1 { font-size: 1.5rem; }
+    }
   </style>
 </head>
 <body>
   <header>
-    <h1>Læringsassistent</h1>
+    <h1>📚 Læringsassistent</h1>
+    <p>Upload PDF og få aktivitetsforslag til din praktik</p>
   </header>
 
   <main>
     <div class="left">
       <div class="card">
-        <h2>Upload PDF</h2>
-        <input type="file" id="pdfUpload" accept="application/pdf" style="display:none" />
-        <button onclick="document.getElementById('pdfUpload').click()">Upload PDF</button>
+        <h2>📄 Upload PDF</h2>
+        <div class="file-input-wrapper">
+          <input type="file" id="pdfUpload" accept="application/pdf" />
+          📁 Vælg PDF fil
+        </div>
+        <div id="uploadStatus" style="margin-top: 16px;"></div>
       </div>
 
       <div class="card">
-        <h2>Mine aktiviteter (max 3)</h2>
-        <div id="activitiesList"></div>
-        <button onclick="downloadPDF()">Udskriv alle aktiviteter</button>
+        <h2>💾 Mine aktiviteter (max 3)</h2>
+        <div id="activitiesList">
+          <div class="empty-state">Ingen aktiviteter gemt endnu</div>
+        </div>
+        <button onclick="downloadPDF()" id="downloadBtn" disabled>📥 Udskriv alle aktiviteter</button>
       </div>
     </div>
 
     <div class="right">
       <div class="card">
-        <h2>Opsummering af læreplan</h2>
-        <pre id="summaryBox"></pre>
+        <h2>📋 Opsummering af læreplan</h2>
+        <pre id="summaryBox">Upload en PDF for at se opsummering...</pre>
       </div>
 
       <div class="card">
-        <h2>Lav forslag til aktivitet</h2>
-        <label for="profileSelect">Vælg praktikprofil:</label>
+        <h2>🎯 Lav forslag til aktivitet</h2>
+        <label for="profileSelect"><strong>Vælg praktikprofil:</strong></label>
         <select id="profileSelect">
-          <option value="1. praktik">1. praktik</option>
-          <option value="2. praktik">2. praktik</option>
-          <option value="3. praktik">3. praktik</option>
+          <option value="1. praktik">1. praktik - Pædagogens praksis</option>
+          <option value="2. praktik">2. praktik - Relation og kommunikation</option>
+          <option value="3. praktik">3. praktik - Udvikling af pædagogisk praksis</option>
         </select>
-        <button onclick="lavForslag()">Lav forslag</button>
-        <pre id="forslagBox"></pre>
-        <button onclick="saveActivity()">Gem aktivitet</button>
+        <button onclick="lavForslag()" id="forslagBtn" disabled>🎪 Lav forslag</button>
+        <pre id="forslagBox">Upload først en PDF og lav derefter et forslag...</pre>
+        <button onclick="saveActivity()" id="saveBtn" disabled>💾 Gem aktivitet</button>
       </div>
     </div>
   </main>
 
   <script>
-    const SUPABASE_URL = "https://fjwpfesqfwtozaciphnc.functions.supabase.co";
+    // Supabase configuration
+    const SUPABASE_URL = "https://fjwpfesqfwtozaciphnc.supabase.co";
+    const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZqd3BmZXNxZnd0b3phY2lwaG5jIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTY5Nzg5NDksImV4cCI6MjA3MjU1NDk0OX0.4JaHGc5ISuk7IywOeEbuaHGMBFMLJo3uK2MLFF8S6BE";
+    
     let currentSummary = "";
     let currentSuggestion = "";
     let activities = [];
 
-    // Når der vælges en fil → upload automatisk til Supabase pdfsummary
+    // PDF upload handler
     document.getElementById("pdfUpload").onchange = async (e) => {
       const file = e.target.files[0];
       if (!file) return;
 
-      // Vis loading besked
-      document.getElementById("summaryBox").innerText = "Behandler PDF...";
+      const statusDiv = document.getElementById("uploadStatus");
+      const summaryBox = document.getElementById("summaryBox");
+      
+      statusDiv.innerHTML = '<div class="loading">📄 Behandler PDF...</div>';
+      summaryBox.innerText = "Sender PDF til Supabase...";
 
       const formData = new FormData();
       formData.append("file", file);
 
       try {
-        const res = await fetch(`${SUPABASE_URL}/pdfsummary`, {
+        console.log("Uploading to:", `${SUPABASE_URL}/functions/v1/opsummering`);
+        
+        const response = await fetch(`${SUPABASE_URL}/functions/v1/opsummering`, {
           method: "POST",
+          headers: {
+            "Authorization": `Bearer ${SUPABASE_ANON_KEY}`
+          },
           body: formData
         });
 
-        console.log('Response status:', res.status);
-        console.log('Response headers:', res.headers);
+        console.log("Response status:", response.status);
+        console.log("Response headers:", Object.fromEntries(response.headers.entries()));
         
-        const data = await res.json();
-        console.log('Response data:', data);
+        if (!response.ok) {
+          const errorText = await response.text();
+          console.error("Response error:", errorText);
+          throw new Error(`HTTP ${response.status}: ${errorText}`);
+        }
+
+        const data = await response.json();
+        console.log("Response data:", data);
         
         if (data.success) {
-          currentSummary = data.summary || "Ingen opsummering modtaget";
-          document.getElementById("summaryBox").innerText = currentSummary;
+          currentSummary = data.summary;
+          summaryBox.innerText = currentSummary;
+          
+          // Aktiver knapper
+          document.getElementById("forslagBtn").disabled = false;
+          
+          statusDiv.innerHTML = `<div class="success">✅ PDF behandlet succesfuldt! (${data.filename})</div>`;
         } else {
-          document.getElementById("summaryBox").innerText = `Fejl: ${data.error}`;
+          throw new Error(data.error || "Ukendt fejl");
         }
+        
       } catch (error) {
         console.error("Upload error:", error);
-        document.getElementById("summaryBox").innerText = `Fejl ved upload: ${error.message}\n\nPrøv at:\n1. Tjek internetforbindelse\n2. Kontroller at PDF'en ikke er for stor\n3. Se browser console for flere detaljer`;
+        statusDiv.innerHTML = `<div class="error">❌ Fejl ved upload: ${error.message}</div>`;
+        summaryBox.innerText = "Fejl ved behandling af PDF. Tjek console for detaljer.";
       }
     };
 
-    // Lav forslag → Supabase forslag
+    // Lav forslag
     async function lavForslag() {
       if (!currentSummary) {
         alert("Upload først en PDF, så vi har et resumé at arbejde med.");
         return;
       }
 
-      // Vis loading besked
-      document.getElementById("forslagBox").innerText = "Genererer forslag...";
+      const forslagBox = document.getElementById("forslagBox");
+      forslagBox.innerText = "Genererer forslag...";
 
       const profile = document.getElementById("profileSelect").value;
       
       try {
-        const res = await fetch(`${SUPABASE_URL}/forslag`, {
+        console.log("Requesting suggestion for profile:", profile);
+        
+        const response = await fetch(`${SUPABASE_URL}/functions/v1/forslag`, {
           method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ text: currentSummary, profile })
+          headers: {
+            "Content-Type": "application/json",
+            "Authorization": `Bearer ${SUPABASE_ANON_KEY}`
+          },
+          body: JSON.stringify({ 
+            text: currentSummary, 
+            profile: profile 
+          })
         });
 
-        console.log('Forslag response status:', res.status);
-        const data = await res.json();
-        console.log('Forslag response data:', data);
+        console.log("Forslag response status:", response.status);
+        
+        if (!response.ok) {
+          const errorText = await response.text();
+          console.error("Forslag error:", errorText);
+          throw new Error(`HTTP ${response.status}: ${errorText}`);
+        }
+
+        const data = await response.json();
+        console.log("Forslag response data:", data);
         
         if (data.success) {
-          currentSuggestion = data.suggestion || "Intet forslag modtaget";
-          document.getElementById("forslagBox").innerText = currentSuggestion;
+          currentSuggestion = data.suggestion;
+          forslagBox.innerText = currentSuggestion;
+          
+          // Aktiver gem knap
+          document.getElementById("saveBtn").disabled = false;
         } else {
-          document.getElementById("forslagBox").innerText = `Fejl: ${data.error}`;
+          throw new Error(data.error || "Ukendt fejl");
         }
+        
       } catch (error) {
         console.error("Suggestion error:", error);
-        document.getElementById("forslagBox").innerText = `Fejl ved generering: ${error.message}\n\nPrøv at:\n1. Upload først en PDF\n2. Tjek internetforbindelse\n3. Se browser console for flere detaljer`;
+        forslagBox.innerText = `Fejl ved generering: ${error.message}`;
       }
     }
 
@@ -145,9 +279,27 @@
         alert("Du kan kun gemme op til 3 aktiviteter.");
         return;
       }
-      activities.push({ text: currentSuggestion, reflection: "" });
+      
+      activities.push({ 
+        text: currentSuggestion, 
+        reflection: "",
+        profile: document.getElementById("profileSelect").value,
+        timestamp: new Date().toLocaleString('da-DK')
+      });
+      
       renderActivities();
       localStorage.setItem("activities", JSON.stringify(activities));
+      
+      // Vis success besked
+      const saveBtn = document.getElementById("saveBtn");
+      const originalText = saveBtn.innerHTML;
+      saveBtn.innerHTML = "✅ Gemt!";
+      saveBtn.disabled = true;
+      
+      setTimeout(() => {
+        saveBtn.innerHTML = originalText;
+        saveBtn.disabled = false;
+      }, 2000);
     }
 
     function updateReflection(index, value) {
@@ -156,51 +308,111 @@
     }
 
     function deleteActivity(index) {
-      activities.splice(index, 1);
-      renderActivities();
-      localStorage.setItem("activities", JSON.stringify(activities));
+      if (confirm("Er du sikker på at du vil slette denne aktivitet?")) {
+        activities.splice(index, 1);
+        renderActivities();
+        localStorage.setItem("activities", JSON.stringify(activities));
+      }
     }
 
     function renderActivities() {
       const list = document.getElementById("activitiesList");
+      
+      if (activities.length === 0) {
+        list.innerHTML = '<div class="empty-state">Ingen aktiviteter gemt endnu</div>';
+        document.getElementById("downloadBtn").disabled = true;
+        return;
+      }
+      
       list.innerHTML = "";
       activities.forEach((act, idx) => {
         const div = document.createElement("div");
         div.className = "activity";
         div.innerHTML = `
-          <strong>Aktivitet ${idx + 1}</strong>
-          <p>${act.text}</p>
-          <textarea placeholder="Skriv dine refleksioner..." oninput="updateReflection(${idx}, this.value)">${act.reflection}</textarea>
-          <button onclick="deleteActivity(${idx})">Slet</button>
+          <h4>🎯 Aktivitet ${idx + 1} - ${act.profile}</h4>
+          <small style="color: #64748b;">Gemt: ${act.timestamp}</small>
+          <pre style="font-size: 12px; max-height: 200px; margin: 12px 0;">${act.text}</pre>
+          <textarea 
+            placeholder="Skriv dine refleksioner her..." 
+            oninput="updateReflection(${idx}, this.value)"
+            style="min-height: 80px; margin-bottom: 12px;"
+          >${act.reflection}</textarea>
+          <button onclick="deleteActivity(${idx})" style="background: #dc2626;">🗑️ Slet</button>
         `;
         list.appendChild(div);
       });
+      
+      document.getElementById("downloadBtn").disabled = false;
     }
 
     // Udskriv aktiviteter til PDF
     function downloadPDF() {
+      if (activities.length === 0) {
+        alert("Ingen aktiviteter at udskrive.");
+        return;
+      }
+      
       const { jsPDF } = window.jspdf;
       const doc = new jsPDF();
-      let y = 10;
+      
+      // Titel
+      doc.setFontSize(20);
+      doc.text("Mine Praktik Aktiviteter", 20, 20);
+      
+      let y = 40;
+      
       activities.forEach((act, idx) => {
-        doc.text(`Aktivitet ${idx + 1}:`, 10, y);
+        // Tjek om vi skal til ny side
+        if (y > 250) {
+          doc.addPage();
+          y = 20;
+        }
+        
+        // Aktivitet titel
+        doc.setFontSize(14);
+        doc.text(`Aktivitet ${idx + 1} - ${act.profile}`, 20, y);
         y += 10;
-        doc.text(doc.splitTextToSize(act.text, 180), 10, y);
-        y += 20;
-        doc.text("Refleksioner:", 10, y);
-        y += 10;
-        doc.text(doc.splitTextToSize(act.reflection || "-", 180), 10, y);
-        y += 30;
+        
+        // Timestamp
+        doc.setFontSize(10);
+        doc.text(`Gemt: ${act.timestamp}`, 20, y);
+        y += 15;
+        
+        // Aktivitet tekst
+        doc.setFontSize(10);
+        const lines = doc.splitTextToSize(act.text, 170);
+        doc.text(lines, 20, y);
+        y += lines.length * 5 + 10;
+        
+        // Refleksioner
+        if (act.reflection) {
+          doc.setFontSize(12);
+          doc.text("Refleksioner:", 20, y);
+          y += 8;
+          
+          doc.setFontSize(10);
+          const reflectionLines = doc.splitTextToSize(act.reflection, 170);
+          doc.text(reflectionLines, 20, y);
+          y += reflectionLines.length * 5;
+        }
+        
+        y += 15; // Mellemrum mellem aktiviteter
       });
-      doc.save("aktiviteter.pdf");
+      
+      doc.save("praktik-aktiviteter.pdf");
     }
 
     // Hent gemte aktiviteter ved load
     window.onload = () => {
       const saved = localStorage.getItem("activities");
       if (saved) {
-        activities = JSON.parse(saved);
-        renderActivities();
+        try {
+          activities = JSON.parse(saved);
+          renderActivities();
+        } catch (e) {
+          console.error("Error loading saved activities:", e);
+          localStorage.removeItem("activities");
+        }
       }
     };
   </script>

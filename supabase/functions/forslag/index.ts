@@ -28,33 +28,33 @@ const kompetenceMaal = {
     fokus: "Pædagogens praksis - grundlæggende pædagogiske aktiviteter",
     kompetencemål: "Begrunde, tilrettelægge, gennemføre og evaluere pædagogiske aktiviteter",
     aktiviteter: [
-      "Observation af børns leg og interaktion",
-      "Tilrettelæggelse af simple strukturerede aktiviteter",
-      "Dokumentation af egen læreproces og refleksion",
+      "Observation af børns leg og interaktion med fokus på dokumentation",
+      "Tilrettelæggelse af strukturerede aktiviteter med sundhedsfokus",
+      "Evaluering af pædagogiske metoders effekt på børns læring",
       "Sundhedsfremmende aktiviteter omkring måltider og hygiejne",
-      "Evaluering af pædagogiske metoders effekt"
+      "Refleksion over egen læreproces og professionelle udvikling"
     ]
   },
   "2. praktik": {
     fokus: "Relation og kommunikation med børn og familier",
     kompetencemål: "Skabe relationer og støtte børns kommunikative kompetencer",
     aktiviteter: [
-      "Relationsskabende aktiviteter med enkelte børn",
-      "Facilitering af børns leg og kreative udfoldelse",
-      "Kommunikationsøvelser og dialogaktiviteter",
-      "Æstetiske, musiske og kropslige aktiviteter",
-      "Differentierede pædagogiske tilgange"
+      "Relationsskabende aktiviteter med fokus på det enkelte barn",
+      "Facilitering af børns kreative leg og æstetiske udfoldelse",
+      "Kommunikationsøvelser og dialogbaserede aktiviteter",
+      "Musiske og kropslige aktiviteter der styrker fællesskabet",
+      "Differentierede pædagogiske tilgange til børn med særlige behov"
     ]
   },
   "3. praktik": {
     fokus: "Udvikling af pædagogisk praksis og innovation",
     kompetencemål: "Målrettet tilrettelæggelse og udvikling af læreprocesser",
     aktiviteter: [
-      "Innovative pædagogiske projekter og eksperimenter",
-      "Inddragelse af børn og forældre i udvikling",
-      "Systematisk dokumentation og evaluering",
-      "Tværfagligt samarbejde og videndeling",
-      "Udvikling af det fysiske og sociale børnemiljø"
+      "Innovative pædagogiske projekter med børneinddragelse",
+      "Tværfagligt samarbejde og videndeling med kolleger",
+      "Systematisk dokumentation og evaluering af praksis",
+      "Udvikling af det fysiske og sociale børnemiljø",
+      "Forandringsprocesser med inddragelse af forældre og børn"
     ]
   }
 };
@@ -125,20 +125,20 @@ function generateActivitySuggestion(text: string, profile: string, profileData: 
   const activities = profileData.aktiviteter;
   const randomActivity = activities[Math.floor(Math.random() * activities.length)];
   
-  return `AKTIVITETSFORSLAG FOR ${profile.toUpperCase()}
+  return `🎯 AKTIVITETSFORSLAG FOR ${profile.toUpperCase()}
 
 📋 FOKUSOMRÅDE: ${profileData.fokus}
 
-🎯 KOMPETENCEMÅL: ${profileData.kompetencemål}
+🎪 KOMPETENCEMÅL: ${profileData.kompetencemål}
 
-🎪 FORESLÅET AKTIVITET: ${randomActivity}
+✨ FORESLÅET AKTIVITET: ${randomActivity}
 
 📝 KONKRET GENNEMFØRELSE:
-• Varighed: 30-45 minutter
-• Deltagere: 3-6 børn (tilpas efter behov)
-• Materialer: Afhængig af aktivitet - papir, farver, legetøj, naturmaterialer
-• Forberedelse: 10-15 minutter
-• Lokation: Indendørs eller udendørs efter aktivitetens karakter
+• ⏱️ Varighed: 30-45 minutter
+• 👥 Deltagere: 3-6 børn (tilpas efter behov)
+• 🎨 Materialer: Papir, farver, legetøj, naturmaterialer (afhængig af aktivitet)
+• 🔧 Forberedelse: 10-15 minutter
+• 📍 Lokation: Indendørs eller udendørs efter aktivitetens karakter
 
 🎯 LÆRINGSMÅL:
 • Understøtte børns udvikling og trivsel
@@ -147,12 +147,12 @@ function generateActivitySuggestion(text: string, profile: string, profileData: 
 • Evaluere metoders effekt på børns læring
 
 📊 EVALUERING OG DOKUMENTATION:
-• Observer børnenes engagement og deltagelse
-• Dokumenter læreprocesser gennem fotos/noter
-• Reflekter over aktivitetens forløb og udfald
-• Evaluer egen rolle og pædagogiske tilgang
+• 👀 Observer børnenes engagement og deltagelse
+• 📸 Dokumenter læreprocesser gennem fotos/noter
+• 🤔 Reflekter over aktivitetens forløb og udfald
+• 📈 Evaluer egen rolle og pædagogiske tilgang
 
-🤔 REFLEKSIONSSPØRGSMÅL:
+💭 REFLEKSIONSSPØRGSMÅL:
 • Hvordan reagerede børnene på aktiviteten?
 • Hvilke læreprocesser kunne du observere?
 • Hvad fungerede godt, og hvad kunne forbedres?
@@ -163,5 +163,10 @@ function generateActivitySuggestion(text: string, profile: string, profileData: 
 Baseret på den uploadede læreplan fokuserer denne aktivitet på kerneelementer som børns udvikling, professionel praksis og dokumentation af læreprocesser.
 
 💡 NÆSTE SKRIDT:
-Planlæg aktiviteten i detaljer, forbered materialer og overvej hvordan du vil dokumentere og evaluere forløbet.`;
+1. Planlæg aktiviteten i detaljer
+2. Forbered nødvendige materialer
+3. Overvej hvordan du vil dokumentere forløbet
+4. Evaluer og reflekter efter gennemførelse
+
+🌟 TIP: Husk at inddrage børnenes egne ideer og interesser i aktiviteten!`;
 }
