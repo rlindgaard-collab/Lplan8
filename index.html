@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="da">
+<head>
+  <meta charset="UTF-8" />
+  <title>Læringsassistent</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <style>
+    body { font-family: sans-serif; margin: 0; background: #f9fafb; color: #111; }
+    header { background: #007aff; color: white; padding: 15px; text-align: center; }
+    main { display: flex; }
+    .left, .right { flex: 1; padding: 20px; }
+    h2 { margin-top: 0; }
+    button { background: #007aff; color: white; border: none; padding: 10px 16px; border-radius: 6px; cursor: pointer; margin-top: 5px; }
+    button:hover { background: #005bb5; }
+    select, textarea { padding: 8px; border-radius: 6px; border: 1px solid #ddd; margin-bottom: 1rem; width: 100%; }
+    .card { background: white; border-radius: 10px; padding: 20px; margin-bottom: 20px; box-shadow: 0 2px 5px rgba(0,0,0,0.05); }
+    pre { white-space: pre-wrap; background: #f1f1f1; padding: 10px; border-radius: 6px; }
+    .activity { background: #fff; border: 1px solid #ddd; border-radius: 6px; padding: 10px; margin-bottom: 10px; }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>Læringsassistent</h1>
+  </header>
+
+  <main>
+    <div class="left">
+      <div class="card">
+        <h2>Upload PDF</h2>
+        <input type="file" id="pdfUpload" accept="application/pdf" style="display:none" />
+        <button onclick="document.getElementById('pdfUpload').click()">Upload PDF</button>
+      </div>
+
+      <div class="card">
+        <h2>Mine aktiviteter (max 3)</h2>
+        <div id="activitiesList"></div>
+        <button onclick="downloadPDF()">Udskriv alle aktiviteter</button>
+      </div>
+    </div>
+
+    <div class="right">
+      <div class="card">
+        <h2>Opsummering af læreplan</h2>
+        <pre id="summaryBox"></pre>
+      </div>
+
+      <div class="card">
+        <h2>Lav forslag til aktivitet</h2>
+        <label for="profileSelect">Vælg praktikprofil:</label>
+        <select id="profileSelect">
+          <option value="1. praktik">1. praktik</option>
+          <option value="2. praktik">2. praktik</option>
+          <option value="3. praktik">3. praktik</option>
+        </select>
+        <button onclick="lavForslag()">Lav forslag</button>
+        <pre id="forslagBox"></pre>
+        <button onclick="saveActivity()">Gem aktivitet</button>
+      </div>
+    </div>
+  </main>
+
+  <script>
+    const SUPABASE_URL = "https://fjwpfesqfwtozaciphnc.supabase.co/functions/v1";
+    let currentSummary = "";
+    let currentSuggestion = "";
+    let activities = [];
+
+    // Når der vælges en fil → upload automatisk til Supabase pdfsummary
+    document.getElementById("pdfUpload").onchange = async (e) => {
+      const file = e.target.files[0];
+      if (!file) return;
+
+      const formData = new FormData();
+      formData.append("file", file);
+
+      const res = await fetch(`${SUPABASE_URL}/pdfsummary`, {
+        method: "POST",
+        body: formData
+      });
+
+      const data = await res.json();
+      currentSummary = data.summary || "";
+      document.getElementById("summaryBox").innerText = currentSummary;
+    };
+
+    // Lav forslag → Supabase forslag
+    async function lavForslag() {
+      if (!currentSummary) {
+        alert("Upload først en PDF, så vi har et resumé at arbejde med.");
+        return;
+      }
+
+      const profile = document.getElementById("profileSelect").value;
+      const res = await fetch(`${SUPABASE_URL}/forslag`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ text: currentSummary, profile })
+      });
+
+      const data = await res.json();
+      currentSuggestion = data.suggestion || "Intet forslag modtaget";
+      document.getElementById("forslagBox").innerText = currentSuggestion;
+    }
+
+    // Gem aktivitet (max 3)
+    function saveActivity() {
+      if (!currentSuggestion) {
+        alert("Der er intet forslag at gemme.");
+        return;
+      }
+      if (activities.length >= 3) {
+        alert("Du kan kun gemme op til 3 aktiviteter.");
+        return;
+      }
+      activities.push({ text: currentSuggestion, reflection: "" });
+      renderActivities();
+      localStorage.setItem("activities", JSON.stringify(activities));
+    }
+
+    function updateReflection(index, value) {
+      activities[index].reflection = value;
+      localStorage.setItem("activities", JSON.stringify(activities));
+    }
+
+    function deleteActivity(index) {
+      activities.splice(index, 1);
+      renderActivities();
+      localStorage.setItem("activities", JSON.stringify(activities));
+    }
+
+    function renderActivities() {
+      const list = document.getElementById("activitiesList");
+      list.innerHTML = "";
+      activities.forEach((act, idx) => {
+        const div = document.createElement("div");
+        div.className = "activity";
+        div.innerHTML = `
+          <strong>Aktivitet ${idx + 1}</strong>
+          <p>${act.text}</p>
+          <textarea placeholder="Skriv dine refleksioner..." oninput="updateReflection(${idx}, this.value)">${act.reflection}</textarea>
+          <button onclick="deleteActivity(${idx})">Slet</button>
+        `;
+        list.appendChild(div);
+      });
+    }
+
+    // Udskriv aktiviteter til PDF
+    function downloadPDF() {
+      const { jsPDF } = window.jspdf;
+      const doc = new jsPDF();
+      let y = 10;
+      activities.forEach((act, idx) => {
+        doc.text(`Aktivitet ${idx + 1}:`, 10, y);
+        y += 10;
+        doc.text(doc.splitTextToSize(act.text, 180), 10, y);
+        y += 20;
+        doc.text("Refleksioner:", 10, y);
+        y += 10;
+        doc.text(doc.splitTextToSize(act.reflection || "-", 180), 10, y);
+        y += 30;
+      });
+      doc.save("aktiviteter.pdf");
+    }
+
+    // Hent gemte aktiviteter ved load
+    window.onload = () => {
+      const saved = localStorage.getItem("activities");
+      if (saved) {
+        activities = JSON.parse(saved);
+        renderActivities();
+      }
+    };
+  </script>
+</body>
+</html>
