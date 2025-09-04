@@ -79,18 +79,22 @@
       try {
         const res = await fetch(`${SUPABASE_URL}/pdfsummary`, {
           method: "POST",
+          headers: {
+            'Authorization': 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZqd3BmZXNxZnd0b3phY2lwaG5jIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MzU5MjU5NzQsImV4cCI6MjA1MTUwMTk3NH0.Qs8Ej-Ej7Ej7Ej7Ej7Ej7Ej7Ej7Ej7Ej7Ej7Ej7E'
+          },
           body: formData
         });
 
         const data = await res.json();
         
         if (data.success) {
-          currentSummary = data.summary || "";
+          currentSummary = data.summary || "Ingen opsummering modtaget";
           document.getElementById("summaryBox").innerText = currentSummary;
         } else {
           document.getElementById("summaryBox").innerText = `Fejl: ${data.error}`;
         }
       } catch (error) {
+        console.error("Upload error:", error);
         document.getElementById("summaryBox").innerText = `Fejl ved upload: ${error.message}`;
       }
     };
@@ -110,7 +114,10 @@
       try {
         const res = await fetch(`${SUPABASE_URL}/forslag`, {
           method: "POST",
-          headers: { "Content-Type": "application/json" },
+          headers: { 
+            "Content-Type": "application/json",
+            'Authorization': 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZqd3BmZXNxZnd0b3phY2lwaG5jIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MzU5MjU5NzQsImV4cCI6MjA1MTUwMTk3NH0.Qs8Ej-Ej7Ej7Ej7Ej7Ej7Ej7Ej7Ej7Ej7Ej7Ej7E'
+          },
           body: JSON.stringify({ text: currentSummary, profile })
         });
 
@@ -123,6 +130,7 @@
           document.getElementById("forslagBox").innerText = `Fejl: ${data.error}`;
         }
       } catch (error) {
+        console.error("Suggestion error:", error);
         document.getElementById("forslagBox").innerText = `Fejl ved generering: ${error.message}`;
       }
     }
