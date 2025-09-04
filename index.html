@@ -160,7 +160,7 @@
     let activities = [];
 
     // PDF upload handler
-    document.getElementById("pdfUpload").onchange = async (e) => {
+    document.getElementById("pdfUpload").addEventListener('change', async (e) => {
       const file = e.target.files[0];
       if (!file) return;
 
@@ -213,7 +213,7 @@
         statusDiv.innerHTML = `<div class="error">❌ Fejl ved upload: ${error.message}</div>`;
         summaryBox.innerText = "Fejl ved behandling af PDF. Tjek console for detaljer.";
       }
-    };
+    });
 
     // Lav forslag
     async function lavForslag() {
@@ -403,7 +403,7 @@
     }
 
     // Hent gemte aktiviteter ved load
-    window.onload = () => {
+    window.addEventListener('DOMContentLoaded', () => {
       const saved = localStorage.getItem("activities");
       if (saved) {
         try {
@@ -414,7 +414,20 @@
           localStorage.removeItem("activities");
         }
       }
-    };
+    });
+
+    // Test at file input virker
+    document.addEventListener('DOMContentLoaded', () => {
+      const fileInput = document.getElementById("pdfUpload");
+      console.log("File input element:", fileInput);
+      
+      // Test click på wrapper
+      const wrapper = document.querySelector('.file-input-wrapper');
+      wrapper.addEventListener('click', () => {
+        console.log("Wrapper clicked, triggering file input");
+        fileInput.click();
+      });
+    });
   </script>
 </body>
 </html>
