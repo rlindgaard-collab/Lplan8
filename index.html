@@ -60,7 +60,7 @@
   </main>
 
   <script>
-    const SUPABASE_URL = "https://fjwpfesqfwtozaciphnc.supabase.co/functions/v1";
+    const SUPABASE_URL = "https://fjwpfesqfwtozaciphnc.functions.supabase.co";
     let currentSummary = "";
     let currentSuggestion = "";
     let activities = [];
@@ -79,13 +79,14 @@
       try {
         const res = await fetch(`${SUPABASE_URL}/pdfsummary`, {
           method: "POST",
-          headers: {
-            'Authorization': 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZqd3BmZXNxZnd0b3phY2lwaG5jIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MzU5MjU5NzQsImV4cCI6MjA1MTUwMTk3NH0.Qs8Ej-Ej7Ej7Ej7Ej7Ej7Ej7Ej7Ej7Ej7Ej7Ej7E'
-          },
           body: formData
         });
 
+        console.log('Response status:', res.status);
+        console.log('Response headers:', res.headers);
+        
         const data = await res.json();
+        console.log('Response data:', data);
         
         if (data.success) {
           currentSummary = data.summary || "Ingen opsummering modtaget";
@@ -95,7 +96,7 @@
         }
       } catch (error) {
         console.error("Upload error:", error);
-        document.getElementById("summaryBox").innerText = `Fejl ved upload: ${error.message}`;
+        document.getElementById("summaryBox").innerText = `Fejl ved upload: ${error.message}\n\nPrøv at:\n1. Tjek internetforbindelse\n2. Kontroller at PDF'en ikke er for stor\n3. Se browser console for flere detaljer`;
       }
     };
 
@@ -114,14 +115,13 @@
       try {
         const res = await fetch(`${SUPABASE_URL}/forslag`, {
           method: "POST",
-          headers: { 
-            "Content-Type": "application/json",
-            'Authorization': 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZqd3BmZXNxZnd0b3phY2lwaG5jIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MzU5MjU5NzQsImV4cCI6MjA1MTUwMTk3NH0.Qs8Ej-Ej7Ej7Ej7Ej7Ej7Ej7Ej7Ej7Ej7Ej7Ej7E'
-          },
+          headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ text: currentSummary, profile })
         });
 
+        console.log('Forslag response status:', res.status);
         const data = await res.json();
+        console.log('Forslag response data:', data);
         
         if (data.success) {
           currentSuggestion = data.suggestion || "Intet forslag modtaget";
@@ -131,7 +131,7 @@
         }
       } catch (error) {
         console.error("Suggestion error:", error);
-        document.getElementById("forslagBox").innerText = `Fejl ved generering: ${error.message}`;
+        document.getElementById("forslagBox").innerText = `Fejl ved generering: ${error.message}\n\nPrøv at:\n1. Upload først en PDF\n2. Tjek internetforbindelse\n3. Se browser console for flere detaljer`;
       }
     }
 
